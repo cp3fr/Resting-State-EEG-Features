@@ -32,7 +32,7 @@ if compute_spectro==1
   folders = folders(contains({folders.name},'NDAR'));
 
   %skip the ones for which an output already exists
-  if skip_already_processed
+  if skip_already_processed==1
     tbl = pl_processing_summary(settings);
     files_of_interest = tbl.ID(tbl.HasSpectroFeatures==0);
     ind = zeros(length(folders),1);
@@ -87,7 +87,7 @@ if compute_fooof==1
   folders = folders(contains({folders.name},'NDAR'));
 
   %skip the ones for which an output already exists
-  if skip_already_processed
+  if skip_already_processed==1
     tbl = pl_processing_summary(settings);
     files_of_interest = tbl.ID(tbl.HasSpectroFeatures==1 & tbl.HasFooofFeatures==0);
     ind = zeros(length(folders),1);
@@ -110,6 +110,7 @@ end
 
 %=============================================================
 %processing summary
+%lists all input and outputfiles in processing_summary table
 if processing_summary==1
 
   tbl = pl_processing_summary(settings);
@@ -120,8 +121,12 @@ end
 
 %=============================================================
 %feature summary
-%adds specific features of interest to the processing summary table
-%...
+%adds selected features of interest to the processing summary table and saves it as feature_summary table
+if feature_summary==1
+
+  'ADD CODE HERE'
+
+end
 
 
 
