@@ -1,7 +1,8 @@
 %%Batch.m
 %
 %Batch script for extracting Resting EEG features from HBN data
-%works in two steps: first, computes spectral features (can be done in serial or parallel), then computes fooof parameters (needs matlab to call python and use the fooof toolbox)
+%works in two steps: first, computes spectral features (can be done in serial or parallel), 
+%then computes fooof parameters (needs matlab to call python and use the fooof toolbox)
 %files that raise an error during processing are skipped
 %makes a summary table listing for each subject the available input and outputfiles
 %finally allows adding the output features to the summary table for later processing
