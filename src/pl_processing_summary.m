@@ -34,6 +34,21 @@ function tbl = pl_processing_summary(settings)
 
   end
 
+  %local function to apply to each cell
+  function x=first_or_empty(x)
+    if isempty(x)
+      x='';
+    else
+      x=x(1);
+    end
+  end
+  %get the quality rating
+  tbl.QualityRating(:) = cellfun(@(x) first_or_empty(x),tbl.Inputfilename,'UniformOutput',false);
+  %encode them as dummy variables
+  tbl.HasBadQuality = strcmpi(tbl.QualityRating,'b');
+  tbl.HasOkQuality = strcmpi(tbl.QualityRating,'o');
+  tbl.HasGoodQuality = strcmpi(tbl.QualityRating,'g');
+
   % in output folder whether output folder exists
   tbl.Outputpath = cellfun(@(x) [settings.path.results,x,filesep],tbl.ID,'UniformOutput',false);
 
