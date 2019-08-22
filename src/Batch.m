@@ -12,12 +12,13 @@ clear all; close all; clc;
 %=============================================================
 %manual switches
 %whether to skip previously processed files (1) or to compute them again (0)
+%applies only to compute_spectro and compute_fooof
 skip_already_processed = 1;
 %what tasks shall be done
-compute_spectro    = 1;
+compute_spectro    = 0;
 compute_fooof      = 0;
 processing_summary = 0;
-feature_summary    = 0; %not implemented 
+write_csv          = 1;  
 
 %=============================================================
 %load the processing settings
@@ -78,22 +79,20 @@ if compute_fooof==1
   else
       pyversion(settings.path.python);
   end
-  insert(py.sys.path,int32(0),settings.path.fooof(1:end-1));
+  insert(py.sys.path,int32(0),settings.path.fooof(1:en-1));
   addpath(settings.path.fooof)
-  clear isloaded;
-  pyversion
-
-  %list of data folders
-  folders = dir(settings.path.results);
-  folders = folders(contains({folders.name},'NDAR'));
-
-  %skip the ones for which an output already exists
+  clear isloaded
+  pyversio
+  %list of data folder
+  folders = dir(settings.path.results)
+  folders = folders(contains({folders.name},'NDAR'))
+  %skip the ones for which an output already exist
   if skip_already_processed==1
-    tbl = pl_processing_summary(settings);
+    tbl = pl_processing_summary(settings)
     files_of_interest = tbl.ID(tbl.HasSpectroFeatures==1 & tbl.HasFooofFeatures==0);
-    ind = zeros(length(folders),1);
-    for fn = files_of_interest'
-      ind(strcmpi({folders.name},fn{1}))=1;
+    ind = zeros(length(folders),1)
+    for fn = files_of_interest
+      ind(strcmpi({folders.name},fn{1}))=1
     end
     ind = logical(ind);
     folders = folders(ind);
@@ -121,11 +120,33 @@ if processing_summary==1
 end
 
 %=============================================================
-%feature summary
-%adds selected features of interest to the processing summary table and saves it as feature_summary table
-if feature_summary==1
+%write_csv
+%writes out the features to csv files
+if write_csv==1
 
-  'ADD CODE HERE'
+  %load processing summary table
+  load([settings.path.results,filesep,'processing_summary.mat'],'tbl');
+
+  %select files with good/ok data quality and for who features were extracted
+  % ind = ( logical(tbl.HasOkQuality) | logical(tbl.HasGoodQuality) ) ...
+  %     & logical(tbl.HasFooofFeatures);
+  %select all subjects for whom features are available
+  ind = logical(tbl.HasFooofFeatures);
+  tbl = tbl(ind,:);
+
+  %write csv of features at electrode cluster level (302 columns = 50 features x 6 clusters + 2 info)
+  pl_write_csv_clusters(tbl,settings);
+
+  %write csv of features at channels level (5054 columns = 50 features x 105 channels + 2 info)
+  pl_write_csv_channels(tbl,settings);
+
+  %write csv of features at channels level (52 columns = 50 features + 2 info)
+  pl_write_csv_average(tbl,settings);
+
+  %check the loaded csv file
+  % tbl_clust = readtable([settings.path.results,'resting_eeg_clusters.csv']);
+  % tbl_chans = readtable([settings.path.results,'resting_eeg_channels.csv']);
+  % tbl_avg = readtable([settings.path.results,'resting_eeg_average.csv']);
 
 end
 
