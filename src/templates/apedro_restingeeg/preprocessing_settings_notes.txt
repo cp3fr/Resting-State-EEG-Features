@@ -1,0 +1,23 @@
+Automagic settings preprocessing Andreas
+
+file: '/Volumes/methlab/Neurometric/Neurometric/2017/TestRetestPilot_TestRetestPilot_results/A04/gip_A04_RES_EEG.mat'
+
+filtering/highpass
+performed: yes
+freq: 0.5
+order: 3300
+transitionBandWidth: 0.05
+
+EOGRegression
+performed: yes
+eogChannels: 'E1' 'E8' 'E14' 'E17' 'E21' 'E25' 'E32' 'E125' 'E126' 'E127' 'E128'
+
+mara
+performed: yes
+highpass
+performed: yes
+fq: 1
+order: 1650
+transitionBandWidth 1
+
+

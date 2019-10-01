@@ -6,7 +6,7 @@
 function pl_fooof(folder,settings)
 
   %path to data
-  subjpath = [settings.path.results,folder.name,filesep];
+  subjpath = [settings.path.process,folder.name,filesep];
 
   disp(['..loading ',subjpath,'features_spectro','.mat'])
 

@@ -13,19 +13,32 @@ function settings = default_settings()
   end
   settings.path.data=[settings.path.mountpoint,'methlab',filesep,'HBN_resting_without_EOG Kopie',filesep];
   settings.path.project=[settings.path.mountpoint,'methlab',filesep,'HBN_RestingEEG_Features',filesep];
+
   settings.path.results=[settings.path.project,'results',filesep];
+  settings.path.process=[settings.path.results,'process',filesep];
+  settings.path.tables=[settings.path.results,'tables',filesep];
+  settings.path.csv=[settings.path.results,'csv',filesep];
+
   settings.path.src=[settings.path.project,'src',filesep]; 
   settings.path.functions=[settings.path.project,'src',filesep,'functions',filesep];
   settings.path.ext=[settings.path.project,'ext',filesep];
   settings.path.eeglab=[settings.path.project,'ext',filesep,'eeglab_dev_july2019',filesep];
   settings.path.fooof=[settings.path.project,'ext',filesep,'fooof',filesep];
+  settings.path.microstates=[settings.path.project,'ext',filesep,'Microstates1.1',filesep];
+  settings.path.mst=[settings.path.project,'ext',filesep,'MST1.0',filesep];
   settings.path.python = '/Library/Frameworks/Python.framework/Versions/3.7/bin/python3';
 
   addpath(settings.path.src);
   addpath(settings.path.functions);
   addpath(settings.path.eeglab);
   eeglab; close;
+  addpath(settings.path.mst);
+  addpath(settings.path.microstates);
 
+  %% Parallel processing settings ------------------------------------
+  settings.parallel.run = true;
+  settings.parallel.cluster = parcluster('local');
+  settings.parallel.workers = settings.parallel.cluster.NumWorkers;
 
   %% Plotting settings -----------------------------------------------
   settings.figure.visible = 'on';
@@ -118,6 +131,21 @@ function settings = default_settings()
   settings.fooof.modelparams.peak_threshold=[]; %[]=use default=2.0
   settings.fooof.modelparams.aperiodic_mode=[]; %[]=use default='fixed'
   settings.fooof.modelparams.verbose=[]; %[]=use default=True
+
+  %% Microstates Analysis 
+  settings.microstate = {};
+  settings.microstate.Fun = 'RestingMicrostate';
+  settings.microstate.Path = {};
+  settings.microstate.avgref = 1; % re-reference
+  settings.microstate.Npeaks = 500; % how many peaks per subject do you want to extract
+  settings.microstate.MinPeakDist = 10; % in ms
+  settings.microstate.GFPthresh = 1; % exclude GFP peaks if they exceed X sd. 
+  settings.microstate.normalise = 1; % Normalise by average channel std.  
+  settings.microstate.lpf = 2;
+  settings.microstate.hpf = 20;
+  % clustering
+  settings.microstate.Nmicrostates = 4;
+  settings.microstate.Nrepetitions = 100;
 
 
 end
