@@ -18,6 +18,7 @@ function settings = default_settings()
   settings.path.process=[settings.path.results,'process',filesep];
   settings.path.tables=[settings.path.results,'tables',filesep];
   settings.path.csv=[settings.path.results,'csv',filesep];
+  settings.path.group=[settings.path.results,'group',filesep];
 
   settings.path.src=[settings.path.project,'src',filesep]; 
   settings.path.functions=[settings.path.project,'src',filesep,'functions',filesep];
@@ -65,6 +66,7 @@ function settings = default_settings()
   settings.spectro = {};
   settings.spectro.fun = 'restingspectro';
   settings.spectro.path = {};
+  settings.spectro.sr = 500; %Hz
   settings.spectro.notch.lpf = 58; %
   settings.spectro.notch.hpf = 62; %
   settings.spectro.bandpass.lpf = 1; %

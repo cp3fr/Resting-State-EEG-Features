@@ -1,4 +1,4 @@
-%%compute_resting_spectro(EEG)
+%%[EEG,isvalid] = compute_resting_spectro(EEG,settings)
 %
 %This function computes spectral features, channel x time densities, absolute and relative power for fixed frequency bands, individual alpha peak, and individual frequency bands (based on alpha peak). 
 %
@@ -25,6 +25,7 @@
 %                    (Maximum, Derivative, Amplitude)
 %        indfbands : individual frequency bands, defined relative to individual alpha peak
 %        (see subfunctions for detailled description of how outputs are computed)
+%   isvalid: whether the correct amount of event triggers was found and file was processed
 %
 % DEPENDENCIES:
 %   eeglab added to the matlab path
@@ -34,7 +35,7 @@
 % christian.pfeiffer@uzh.ch
 % 20.08.2019
 %
-function EEG = compute_resting_spectro(EEG,settings)
+function [EEG,isvalid] = compute_resting_spectro(EEG,settings)
 
   %notch filter
   EEG = pop_eegfiltnew(EEG, settings.spectro.notch.lpf,    settings.spectro.notch.hpf,   [], 1); %[]=default filter order, and 'revfilt'=1 for notch

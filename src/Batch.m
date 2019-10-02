@@ -1,31 +1,50 @@
 %%Batch.m
 %
-%Batch script for extracting Resting EEG features from HBN data
-%works in two steps: first, computes spectral features (can be done in serial or parallel), 
-%then computes fooof parameters (needs matlab to call python and use the fooof toolbox)
-%files that raise an error during processing are skipped
-%makes a summary table listing for each subject the available input and outputfiles
-%finally allows adding the output features to the summary table for later processing
+%Script for extracting features from HBN Resting EEG data
 %
+%christian.pfeiffer@uzh.ch
+%02.10.2019
 clear all; close all; clc;
 
 %=============================================================
 %manual switches
-%whether to skip previously processed files (1) or to compute them again (0)
-%applies only to compute_spectro and compute_fooof
-skip_already_processed = 1;
-%what tasks shall be done
+processing_mode    = 0;
+%0=all   
+%1=skip already processed,  
+%2=subjects of interest
+
+%what to do
 compute_spectro    = 0;
 spectro_segments   = 0;
-compute_microstate = 1;
+compute_microstate = 0;
+microstate_across  = 0;
 compute_fooof      = 0;
 processing_summary = 0;
-write_csv          = 0;  
+write_csv          = 1;  
+
+subjects_of_interest = [
+{'NDARCG073G26'}
+{'NDARCT472UJ7'}
+{'NDARDM385EK2'}
+{'NDARFH674DWX'}
+{'NDARGY148EVU'}
+{'NDARNP399JVF'}
+{'NDARYD195BDH'}
+]';
 
 
 %=============================================================
 %load the processing settings
 settings = default_settings();
+
+
+%=============================================================
+%preparatory step: update processing summary
+%but only for processing modes not running across all subjects
+if processing_mode~=0 || microstate_across==1
+  tbl = pl_processing_summary(settings);
+  save([settings.path.tables,filesep,'processing_summary.mat'],'tbl');
+end
 
 
 %=============================================================
@@ -36,13 +55,36 @@ if compute_spectro==1
   folders = dir(settings.path.data);
   folders = folders(contains({folders.name},'NDAR'));
 
-  %skip the ones for which an output already exists
-  if skip_already_processed==1
-    tbl = pl_processing_summary(settings);
-    %all subjects that do not have all those three files
-    ind = ~logical(tbl.HasInfo) ....
-        | ~logical(tbl.HasSpectroFeatures) ...
-        | ~logical(tbl.HasEegSegments);
+  %process all subjects for who the output is incomplete
+  if processing_mode==1
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = ~ (...
+        (tbl.HasInfo==1) ...
+      & (tbl.HasEegSegments==1) ...
+      & (tbl.HasSpectroFeatures==1)...
+      );
+    files_of_interest = tbl.ID(ind);
+    ind = zeros(length(folders),1);
+    for fn = files_of_interest'
+      ind(strcmpi({folders.name},fn{1}))=1;
+    end
+    ind = logical(ind);
+    folders = folders(ind);
+    clear tbl files_of_interest ind fn;
+
+  %process subjects of interest only
+  elseif processing_mode==2
+
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = zeros(size(tbl,1),1);
+    for sn = subjects_of_interest
+      ind(strcmpi(tbl.ID,sn))=1;
+    end
+    ind=logical(ind);
     files_of_interest = tbl.ID(ind);
     ind = zeros(length(folders),1);
     for fn = files_of_interest'
@@ -56,29 +98,24 @@ if compute_spectro==1
   %loop over subject data..
   %..parallel processing
   if settings.isSciencecloud
-
     %just in case a parpool has been open before delete it here
     try
       delete(gcp('nocreate'))
     end
-
     %initialize a parallel pool
     parpool('local',settings.parallel.workers);
-
     parfor(i=1:length(folders))
       pl_spectro(folders(i),settings.path.process,settings); 
     end
-
   %..serial processing
   else
-    
     for i=1:length(folders)
       pl_spectro(folders(i),settings.path.process,settings);
     end
-
   end
 
 end
+
 
 %=============================================================
 %pipeline_spectro_segments
@@ -88,11 +125,33 @@ if spectro_segments==1
   folders = dir(settings.path.process);
   folders = folders(contains({folders.name},'NDAR'));
 
-  %skip the ones for which an output already exists
-  if skip_already_processed==1
-    tbl = pl_processing_summary(settings);
-    %all subjects that do not have all those three files
-    ind = ~logical(tbl.HasSpectroSegments);
+   %process all subjects for who the output is incomplete
+  if processing_mode==1
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = ~ (...
+        (tbl.HasSpectroSegments==1) ...
+      );
+    files_of_interest = tbl.ID(ind);
+    ind = zeros(length(folders),1);
+    for fn = files_of_interest'
+      ind(strcmpi({folders.name},fn{1}))=1;
+    end
+    ind = logical(ind);
+    folders = folders(ind);
+    clear tbl files_of_interest ind fn;
+
+  %process subjects of interest only
+  elseif processing_mode==2
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = zeros(size(tbl,1),1);
+    for sn = subjects_of_interest
+      ind(strcmpi(tbl.ID,sn))=1;
+    end
+    ind=logical(ind);
     files_of_interest = tbl.ID(ind);
     ind = zeros(length(folders),1);
     for fn = files_of_interest'
@@ -107,26 +166,20 @@ if spectro_segments==1
   %loop over subject data..
   %..parallel processing
   if settings.isSciencecloud
-
     %just in case a parpool has been open before delete it here
     try
       delete(gcp('nocreate'))
     end
-
     %initialize a parallel pool
     parpool('local',settings.parallel.workers);
-
     parfor(i=1:length(folders))
       pl_spectro_segments(folders(i),settings.path.process,settings); 
     end
-
   %..serial processing
   else
-
     for i=1:length(folders)
       pl_spectro_segments(folders(i),settings.path.process,settings);
     end
-
   end
 
 end
@@ -134,22 +187,40 @@ end
 
 %=============================================================
 %pipeline_microstates
-%loads the preprocessed continuous EEGfile
-%segments the EEG according to eyes open eyes closed trigger
-%computes spectro features
-%monitors problem using info structure
-%gfp peak detection, microstate segementation (individual subjects)
-%todo: across subjects
 if compute_microstate==1
 
   %find all inputdata folders
   folders = dir(settings.path.data);
   folders = folders(contains({folders.name},'NDAR'));
 
-  %skip the ones for which an output already exists
-  if skip_already_processed==1
-    tbl = pl_processing_summary(settings);
-    files_of_interest = tbl.ID(tbl.HasMicrostateFeatures==0);
+   %process all subjects for who the output is incomplete
+  if processing_mode==1
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = ~ (...
+        (tbl.HasMicrostateFeatures==1)...
+      );
+    files_of_interest = tbl.ID(ind);
+    ind = zeros(length(folders),1);
+    for fn = files_of_interest'
+      ind(strcmpi({folders.name},fn{1}))=1;
+    end
+    ind = logical(ind);
+    folders = folders(ind);
+    clear tbl files_of_interest ind fn;
+
+  %process subjects of interest only
+  elseif processing_mode==2
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = zeros(size(tbl,1),1);
+    for sn = subjects_of_interest
+      ind(strcmpi(tbl.ID,sn))=1;
+    end
+    ind=logical(ind);
+    files_of_interest = tbl.ID(ind);
     ind = zeros(length(folders),1);
     for fn = files_of_interest'
       ind(strcmpi({folders.name},fn{1}))=1;
@@ -162,39 +233,234 @@ if compute_microstate==1
   %loop over subject data..
   %..parallel processing
   if settings.isSciencecloud
-
     %just in case a parpool has been open before delete it here
     try
       delete(gcp('nocreate'))
     end
-
     %initialize a parallel pool
     parpool('local',settings.parallel.workers);
-
     %gfp peak extraction and microstate individual fitting
     parfor(i=1:length(folders))
       pl_microstate(folders(i),settings.path.process,settings); 
     end
-
   %..serial processing
   else
-    
     %gfp peak extraction and microstate individual fitting
     for i=1:length(folders)
       pl_microstate(folders(i),settings.path.process,settings);
     end
-
   end
-
-
-  %% add here across-subjects pipeline
-  %loops over all available subjects, concatenate GFP peaks,
-  %make table with information for reference
-  %saves the group output
-  %runs segmentation on this output
 
 end
 
+%=============================================================
+%microstate across subject segmentation and backfitting
+if microstate_across==1
+
+  %select the group of subjects for segmentation
+
+  load([settings.path.tables,filesep,'processing_summary.mat'],'tbl');
+  ind = tbl.HasMicrostateFeatures==1;
+  tbl=tbl(ind,:);
+  n = size(tbl,1);
+
+  fp_group = settings.path.group;
+  fn_groupdata = sprintf('GEEG_n=%d.mat',n);
+  fn_grouptable = sprintf('GEEG_n=%d_table.mat',n);
+
+  %if output data does not exist load GFP peaks for all subjects in one file
+  if ~ ( exist([fp_group,fn_groupdata]) && exist([fp_group,fn_grouptable]) )
+
+    %load gfp data from all subjects
+    data = []
+    for i = 1:n
+      fp = [tbl.Outputpath{i},'microstate/'];
+      fn = 'GEEG.mat';
+      disp(sprintf('file %d/%d: %s',i,n,[fp,fn]))
+      load([fp,fn],'GEEG');
+      data=cat(2,data,GEEG);
+      clear GEEG;
+    end
+
+    GEEG = data;
+    clear data;
+
+    if ~isdir(fp_group)
+      mkdir(fp_group);
+    end
+
+    disp(['..saving ',fp_group,fn_groupdata]);
+    save([fp_group,fn_groupdata],'GEEG','-v7.3');
+    disp(['..saving ',fp_group,fn_grouptable]);
+    save([fp_group,fn_grouptable],'tbl');
+
+    %make a copy of the chanlocs
+    if i==1
+      fp = [tbl.Outputpath{1},'microstate/'];
+      fn = 'chanlocs.mat';
+      disp(['..saving ',fp_group,fn]);
+      copyfile([fp,fn],[fp_group,fn]);
+    end
+
+  %if output data does exist, load it
+  else
+    disp(['..loading ',fp_group,fn_groupdata]);
+    load([fp_group,fn_groupdata],'GEEG');
+    disp(['..loading ',fp_group,fn_grouptable]);
+    load([fp_group,fn_grouptable],'tbl');
+    disp(['..loading ',fp_group,'chanlocs.mat']);
+    load([fp_group,'chanlocs.mat'],'chanlocs');
+  end
+
+
+  % %quick hack for pipeline testing
+  % GEEG = GEEG(:,1:5000);
+
+  %% SEGMENTATION =========
+
+  %make a dataset with gfp peaks from all subjects concatenated
+  EEGtmp = eeg_emptyset();
+  EEGtmp.setname = 'GFPpeakmaps';
+  EEGtmp.chanlocs = chanlocs;
+  EEGtmp.nbchan = length(chanlocs);
+  EEGtmp.trials = 1;
+  EEGtmp.srate = settings.spectro.sr;
+  EEGtmp.data = GEEG;
+  EEGtmp.pnts = size(EEGtmp.data,2);
+  EEGtmp.times = (1:size(EEGtmp.data,2))*1000/EEG.srate;
+  EEGtmp.nbchan = size(EEGtmp.data,1);
+  EEGtmp.microstate.data = EEGtmp.data;
+
+  %segment the data
+  EEG = pop_micro_segment( ...
+    EEGtmp, ...
+    'algorithm', 'modkmeans', ...
+    'sorting', 'Global explained variance', ...
+    'normalise', 0, ...
+    'Nmicrostates', 2:8, ...
+    'verbose', 1, ... 
+    'Nrepetitions', 50, ...
+    'fitmeas', 'CV', 'max_iterations', 1000, ...
+    'threshold', 1e-06, ...
+    'optimised', 1 );
+
+  %make the outputfolder
+  fp =[fp_group,'microstate/'];
+  if ~isdir(fp)
+    mkdir(fp);
+  end
+
+  %save the prototypes
+  fp =[fp_group,'microstate/'];
+  fn = 'prototypes.mat';
+  disp(['..saving ',fp,fn])
+  save([fp,fn],'EEG','-v7.3')
+
+  %make and save the protype figure
+  figure;
+  MicroPlotTopo( EEG, 'plot_range', [] );
+  fp =[fp_group,'microstate/'];
+  fn = 'prototypes';
+  disp(['..saving ',fp,fn])
+  saveas(gcf,[fp,fn],'png');
+  close;
+
+  % Select active number of microstates: W, KL and KLnorm are not polarity   
+  % invariant, z.B. 5   Mit GUI und Graphik ausw�hlen oder vorbestimmt?
+  EEG = pop_micro_selectNmicro( EEG,'Measures',{'CV', 'GEV'}, 'do_subplots',1,'Nmicro',4);%
+
+  %save the selected prototypes
+  fp =[fp_group,'microstate/'];
+  fn = 'prototypes_selected.mat';
+  disp(['..saving ',fp,fn])
+  save([fp,fn],'EEG','-v7.3')
+
+  %% BACKFITTING ============
+
+  %implement..
+  %loop over subjects 
+  %loop over condition eyesopen eyesclosed
+  %do the backfitting
+  %save the output features
+
+
+  % for i = 1:size(Allasd,1) fprintf('Importing prototypes and backfitting for dataset %i\n',i)
+      
+  %     clear EEG EEGEyesClosed_2D EEGEyesClosed
+      
+  %     load([Allasd.folder{i},'/',Allasd.filename{i}])
+      
+      
+  %     n30 = sum(contains({EEG.event(:).type},'30'));
+      
+  %     Allasd.n30(i) = n30;
+      
+  %     if n30 > 1 %selection threshold
+          
+  %         disp(['..loading ',Allasd.folder{i},Allasd.filename{i}])
+          
+  %         Allasd.loaded(i) = 1;
+          
+          
+  %         for j=1:length(EEG.event)
+  %             EEG.event(j).latency=EEG.event(j).sample;
+  %         end
+          
+  %         EEGEyesClosed = pop_epoch(EEG, {'30 '} , [2 38]);
+          
+  %         %2D: reshape from 3D to 2D with "reshape(A,2,[])"
+  %         %permute(EEGEyesClosed.data,1,3,2)
+          
+  %         EEGEyesClosed_2D = EEGEyesClosed;
+          
+  %         EEGEyesClosed_2D.data = reshape(permute(EEGEyesClosed.data,[2,3,1]),[],EEGEyesClosed.nbchan)';
+          
+  %         EEGEyesClosed_2D.pnts = size(EEGEyesClosed_2D.data,2);
+          
+  %         EEG = EEGEyesClosed_2D;
+          
+  %         % [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEGEyesClosed_2D, CURRENTSET,'retrieve',i,'study',0);
+          
+  %         %3.6 Back-fit microstates on all EEG
+  %         EEG = pop_micro_import_proto( EEG, ALLEEG, 24); %change
+          
+  %         EEG = pop_micro_fit( EEG, 'polarity', 0 );
+          
+  %         % 3.7 Temporally smooth microstates labels
+  %         EEG = pop_micro_smooth( EEG, 'label_type', 'backfit','smooth_type', 'reject segments', 'minTime', 30, 'polarity', 0 );
+          
+  %         % 3.9 Calculate microstate statistics
+  %         EEG = pop_micro_stats( EEG, 'label_type', 'backfit', 'polarity', 0 );
+  %         %[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
+          
+  %         Allasd.GEVtotal(i) = EEG.microstate.stats.GEVtotal;
+  %         Allasd.Gfp{i} = EEG.microstate.stats.Gfp;
+  %         Allasd.Occurence{i} = EEG.microstate.stats.Occurence;
+  %         Allasd.Duration{i} = EEG.microstate.stats.Duration;
+  %         Allasd.Coverage{i} = EEG.microstate.stats.Coverage;
+  %         Allasd.Duration{i} = EEG.microstate.stats.Duration;
+  %         Allasd.GEV{i} = EEG.microstate.stats.GEV;
+  %         Allasd.MspatCorr{i} = EEG.microstate.stats.MspatCorr;
+  %         Allasd.TP{i} = EEG.microstate.stats.TP;
+          
+  %     elseif n30 <= 1 %selection threshold   
+   
+  %         Allasd.GEVtotal(i) = nan;lgo
+  %         Allasd.Gfp{i} = nan;
+  %         Allasd.Occurence{i} = nan;
+  %         Allasd.Duration{i} = nan;
+  %         Allasd.Coverage{i} = nan;
+  %         Allasd.Duration{i} = nan;
+  %         Allasd.GEV{i} = nan;
+  %         Allasd.MspatCorr{i} = nan;
+  %         Allasd.TP{i} = nan;
+  %     end
+  % end
+
+
+
+
+end
 
 
 %=============================================================
@@ -216,10 +482,35 @@ if compute_fooof==1
   %list of data folder
   folders = dir(settings.path.process);
   folders = folders(contains({folders.name},'NDAR'));
-  %skip the ones for which an output already exist
-  if skip_already_processed==1
-    tbl = pl_processing_summary(settings);
-    ind = (tbl.HasSpectroFeatures==1) & (tbl.HasFooofFeatures==0);
+  
+  %process all subjects for who the output is incomplete
+  if processing_mode==1
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = (...
+        (tbl.HasSpectroFeatures==1) ...
+      & (tbl.HasFooofFeatures==0) ...
+      );
+    files_of_interest = tbl.ID(ind);
+    ind = zeros(length(folders),1);
+    for fn = files_of_interest'
+      ind(strcmpi({folders.name},fn{1}))=1;
+    end
+    ind = logical(ind);
+    folders = folders(ind);
+    clear tbl files_of_interest ind fn;
+
+  %process subjects of interest only
+  elseif processing_mode==2
+    fp = settings.path.tables;
+    fn = 'processing_summary.mat';
+    load([fp,fn],'tbl');
+    ind = zeros(size(tbl,1),1);
+    for sn = subjects_of_interest
+      ind(strcmpi(tbl.ID,sn))=1;
+    end
+    ind=logical(ind);
     files_of_interest = tbl.ID(ind);
     ind = zeros(length(folders),1);
     for fn = files_of_interest'
@@ -245,7 +536,6 @@ end
 if processing_summary==1
 
   tbl = pl_processing_summary(settings);
-
   save([settings.path.tables,filesep,'processing_summary.mat'],'tbl');
 
 end
@@ -256,28 +546,25 @@ end
 %writes out the features to csv files
 if write_csv==1
 
-  %load processing summary table
-  load([settings.path.tables,filesep,'processing_summary.mat'],'tbl');
+  fp = [settings.path.group];
+  fold = dir(fp);
+  names = {fold.name};
+  fn = names{contains(names,'table')};
+  clear fold names;
 
-  %select files with good/ok data quality and for who features were extracted
-  % ind = ( logical(tbl.HasOkQuality) | logical(tbl.HasGoodQuality) ) ...
-  %     & logical(tbl.HasFooofFeatures);
-  %select all subjects for whom features are available
-  ind = logical(tbl.HasFooofFeatures);
-  tbl = tbl(ind,:);
+  load([fp,fn],'tbl');
 
-  %write csv of features at electrode cluster level (302 columns = 50 features x 6 clusters + 2 info)
-  pl_write_csv_clusters(tbl,settings);
+  %writing spectral features to csv
+  pl_write_csv_spectro_average(tbl,settings);
+  pl_write_csv_spectro_clusters(tbl,settings);
+  pl_write_csv_spectro_channels(tbl,settings);
 
-  %write csv of features at channels level (5054 columns = 50 features x 105 channels + 2 info)
-  pl_write_csv_channels(tbl,settings);
+  %writing regular features to csv
+  pl_write_csv_feature_average(tbl,settings);
+  pl_write_csv_feature_clusters(tbl,settings);
+  pl_write_csv_feature_channels(tbl,settings);
 
-  %write csv of features at channels level (52 columns = 50 features + 2 info)
-  pl_write_csv_average(tbl,settings);
-
-  %check the loaded csv file
-  % tbl_clust = readtable([settings.path.csv,'resting_eeg_clusters.csv']);
-  % tbl_chans = readtable([settings.path.csv,'resting_eeg_channels.csv']);
-  % tbl_avg = readtable([settings.path.csf,'resting_eeg_average.csv']);
+  %csv file checks
+  % tbl = readtable([settings.path.csv,'RestingEEG_Features_Channels.csv']);
 
 end

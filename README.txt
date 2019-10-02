@@ -10,8 +10,14 @@ Input data is continuous EEG, previously preprocessed with the Automagic toolbox
 
 OUTPUT DATA:
 
-Features are stored in the HBN_RestingEEG_Features/results/ 
-in files named "resting_eeg_LEVEL.csv" where LEVEL refers to 
+Features are available for 1479 subjects.
+
+Features are stored in HBN_RestingEEG_Features/results/csv/
+in files named:
+* "RestingEEG_Spectro_LEVEL.csv" (power spectral densities)
+* "RestingEEG_Feature_LEVEL.csv" (features based on power spectral densities)
+
+where LEVEL refers to 
 * channel (one feature for each of 105 EEG channels)
 * cluster (one feature for each of 6 predefined channel clusters)
 * average (one feature for the average signal across all EEG channels)
@@ -23,8 +29,14 @@ Subject identifier (anonymized):
   id                              
 
 EEG data quality rating (B=bad O=ok G=good) from Automagic:        
-  quality_rating                          
+  quality_rating       
 
+Power spectral densities:
+  eyesclosed_specdata_FREQ_LEVEL
+  eyesopen_specdata_FREQ_LEVEL
+  (Note: FREQ refers to frequency-bins from 1-90 Hz, in steps of 0.5 Hz,
+         and excluding 58-62 Hz, e.g. '01dot50hz'=1.5Hz, '70dot00hz'=70Hz)
+ 
 Power for fixed frequency bands:
   eyesclosed_fband_delta_absmean_LEVEL 
   eyesclosed_fband_delta_relmean_LEVEL         
@@ -93,10 +105,5 @@ FOOOF fit parameters:
   eyesopen_fooof_peak_freq_LEVEL               
   eyesopen_fooof_peak_amplitude_LEVEL          
 
-
-TODO:
-Currently, features from only 899 subjects (out of 1650 subjects) are available, because feature extraction did not work. Next step is to extend the feature extraction to more subjects.
-
-
 christian.pfeiffer@uzh.ch
-22.08.2019
+02.10.2019

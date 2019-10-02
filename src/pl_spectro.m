@@ -27,8 +27,8 @@ function pl_spectro(inputfolder,outputfolder,settings)
   info.inputfolder = [inputfolder.folder,filesep,inputfolder.name,filesep];
   info.filepathname = '';
   info.nofile = false;
-  info.isbad = false;
   info.zerodata = false;
+  info.crash_event_triggers = false;
   info.crash_compute_resting_spectro = false;
   info.crash_compute_resting_spectro_msg = [];
 
@@ -62,12 +62,11 @@ function pl_spectro(inputfolder,outputfolder,settings)
     
     %add some check for zero/empty EEG
     if (min(EEG.data(:))==0) && (max(EEG.data(:))==0)
-      info.isbad = true;
       info.zerodata = true;
     end
     
     %only run this if the data is not bad in the first place
-    if ~info.isbad
+    if ~info.zerodata
       
       %fix the missing latency field
       for i = 1:length(EEG.event)
@@ -76,12 +75,15 @@ function pl_spectro(inputfolder,outputfolder,settings)
       
       %compute the spectral features
       try
-        EEG = compute_resting_spectro(EEG,settings);
+        [EEG,isvalid] = compute_resting_spectro(EEG,settings);
+        info.crash_event_triggers = ~isvalid;
         %if it crashes, save this info
       catch me
         info.crash_compute_resting_spectro = true;
         info.crash_compute_resting_spectro_msg = me;
       end
+
+
       
       %check if features were computed
       if isfield(EEG,'spectro')

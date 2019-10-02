@@ -64,7 +64,9 @@ function tbl = pl_processing_summary(settings)
   tbl.HasMicrostateFeatures = zeros(size(tbl,1),1);
   tbl.CrashNoFile = zeros(size(tbl,1),1);
   tbl.CrashZeroData = zeros(size(tbl,1),1);
+  tbl.CrashEventTrigger = zeros(size(tbl,1),1);
   tbl.CrashRestingSpectro = zeros(size(tbl,1),1);
+  tbl.CrashMicrostate = zeros(size(tbl,1),1);
   
   for i=1:size(tbl,1)
 
@@ -76,6 +78,12 @@ function tbl = pl_processing_summary(settings)
         tbl.CrashNoFile(i) = double(info.nofile);
         tbl.CrashZeroData(i) = double(info.zerodata);
         tbl.CrashRestingSpectro(i) = double(info.crash_compute_resting_spectro);
+        if isfield(info,'crash_microstate')
+          tbl.CrashMicrostate(i)=double(info.crash_microstate);
+        end
+        if isfield(info,'crash_event_triggers')
+          tbl.CrashEventTrigger(i)=double(info.crash_event_triggers);
+        end
         clear info;
       end
 
@@ -95,7 +103,8 @@ function tbl = pl_processing_summary(settings)
         tbl.HasFooofFeatures(i)=1;
       end
 
-      if exist([tbl.Outputpath{i},'features_microstate.mat'],'file')==2
+      if (exist([tbl.Outputpath{i},'features_microstate.mat'],'file')==2) ...
+        && (exist([tbl.Outputpath{i},'/microstate/GEEG.mat'],'file')==2)
         tbl.HasMicrostateFeatures(i)=1;
       end
 
