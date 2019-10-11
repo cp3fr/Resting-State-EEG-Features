@@ -1,4 +1,4 @@
-function settings = default_settings()
+function settings = p00_default_settings()
 
   settings = struct();
 
@@ -19,6 +19,7 @@ function settings = default_settings()
   settings.path.tables=[settings.path.results,'tables',filesep];
   settings.path.csv=[settings.path.results,'csv',filesep];
   settings.path.group=[settings.path.results,'group',filesep];
+
 
   settings.path.src=[settings.path.project,'src',filesep]; 
   settings.path.functions=[settings.path.project,'src',filesep,'functions',filesep];
@@ -135,19 +136,47 @@ function settings = default_settings()
   settings.fooof.modelparams.verbose=[]; %[]=use default=True
 
   %% Microstates Analysis 
-  settings.microstate = {};
-  settings.microstate.Fun = 'RestingMicrostate';
-  settings.microstate.Path = {};
-  settings.microstate.avgref = 1; % re-reference
-  settings.microstate.Npeaks = 500; % how many peaks per subject do you want to extract
-  settings.microstate.MinPeakDist = 10; % in ms
-  settings.microstate.GFPthresh = 1; % exclude GFP peaks if they exceed X sd. 
-  settings.microstate.normalise = 1; % Normalise by average channel std.  
-  settings.microstate.lpf = 2;
-  settings.microstate.hpf = 20;
-  % clustering
-  settings.microstate.Nmicrostates = 4;
-  settings.microstate.Nrepetitions = 100;
+  settings.microstate = [];
+
+  %gfppeak selection settings (within subjects)
+  settings.microstate.gfppeaks.datatype = 'spontaneous'
+  settings.microstate.gfppeaks.avgref = 1;
+  settings.microstate.gfppeaks.normalise = 1;
+  settings.microstate.gfppeaks.MinPeakDist = 10;
+  settings.microstate.gfppeaks.Npeaks = 500;
+  settings.microstate.gfppeaks.GFPthresh = 1
+
+  %microstate segmentation settings (across subjects)
+  settings.microstate.segmentation.algorithm = 'modkmeans';
+  settings.microstate.segmentation.sorting = 'Global explained variance';
+  settings.microstate.segmentation.normalise = 0;
+  settings.microstate.segmentation.Nmicrostates = 2:8;
+  settings.microstate.segmentation.verbose = 1;
+  settings.microstate.segmentation.Nrepetitions = 50;
+  settings.microstate.segmentation.fitmeas = 'CV';
+  settings.microstate.segmentation.max_iterations = 1000;
+  settings.microstate.segmentation.threshold = 1e-06;
+  settings.microstate.segmentation.optimised = 1 ;
+
+  %microstate segmentation settings (across subjects)
+  settings.microstate.backfitting.label_type = 'backfit';
+  settings.microstate.backfitting.smooth_type = 'reject segments';
+  settings.microstate.backfitting.minTime = 30;
+  settings.microstate.backfitting.polarity = 0;
+
+  % %microstate old settings apedro
+  % settings.microstate.Fun = 'RestingMicrostate';
+  % settings.microstate.Path = {};
+  % settings.microstate.avgref = 1; % re-reference
+  % settings.microstate.Npeaks = 500; % how many peaks per subject do you want to extract
+  % settings.microstate.MinPeakDist = 10; % in ms
+  % settings.microstate.GFPthresh = 1; % exclude GFP peaks if they exceed X sd. 
+  % settings.microstate.normalise = 1; % Normalise by average channel std.  
+  % settings.microstate.lpf = 2;
+  % settings.microstate.hpf = 20;
+  % % clustering
+  % settings.microstate.Nmicrostates = 4;
+  % settings.microstate.Nrepetitions = 100;
 
 
 end

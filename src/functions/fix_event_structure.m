@@ -1,6 +1,9 @@
 function [EEG,isvalid] = fix_event_structure(EEG)
 
 tbl = struct2table(EEG.event);
+
+tbl.type = strip(tbl.type);
+
 tbl.delay = diff([tbl.latency;EEG.pnts]);
 tbl.select = ones(size(tbl,1),1);
 

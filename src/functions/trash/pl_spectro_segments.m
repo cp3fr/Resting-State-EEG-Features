@@ -1,9 +1,14 @@
-%%function pl_spectro_segments(inputfolder,outputfolder,settings)
-%
-% christian.pfeiffer@uzh.ch
-% 01.10.2019
-%
 function pl_spectro_segments(inputfolder,outputfolder,settings)
+
+
+  fp_input = inputfolder;
+  fp_output = outputfolder, 
+
+
+
+
+
+
 
   %filepath and name for segmented EEG
   fp = [outputfolder,inputfolder.name,filesep];
