@@ -9,8 +9,13 @@ function [d,t] = collect_gfppeaks_all_subjects(d,t,eyes,folder,settings)
   load([fp,fn_info],'info')
 
   %determine if data quality is sufficient
-  is_usable = ~(strcmpi(info.qualityrating,'')) ...
-            & ~(strcmpi(info.qualityrating,'b'));
+  is_usable = false;
+  for val = settings.microstate.segmentation.qualityratings
+    if strcmpi(lower(info.qualityrating),lower(val))
+      is_usable = true;
+    end
+  end
+  clear val ind;
 
   %if file exists and data quality is sufficient
   if exist([fp,fn]) && is_usable

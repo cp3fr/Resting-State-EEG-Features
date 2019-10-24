@@ -22,29 +22,30 @@ s = p00_default_settings();
 
 %some manual settings
 s.todo.override                 = false;
-s.todo.load_segment_data        = true;
-s.todo.power_spectral_densities = true;
+s.todo.load_segment_data        = false;
+s.todo.power_spectral_densities = false;
 s.todo.fooof                    = false;
-s.todo.microstates_gfppeaks     = true;
-s.todo.microstates_segmentation = true;
-s.todo.microstates_backfitting  = true;
+s.todo.microstates_gfppeaks     = false;
+s.todo.microstates_segmentation = false; 
+s.todo.microstates_backfitting  = false;
+% s.todo.functional_connectivity  = false;
+s.todo.write_features_to_csv    = false;
+s.todo.processing_summary       = true;
 
 
 %=============================================================
 %batch processing
 
-p01_load_segment_data(s) 
+p01_load_segment_data(s);
 
-p02_01_power_spectral_densities(s)
+p02_01_power_spectral_densities(s);
+p02_02_fooof(s);
 
-p02_02_fooof(s)
-
-p03_01_microstates_gfppeaks(s)
-
-p03_02_microstates_segmentation(s)
-
-p03_03_microstates_backfitting(s)
+p03_01_microstates_gfppeaks(s);
+p03_02_microstates_segmentation(s); %using a modified function 'pop_micro_segment_nofitstats' where some memory-intensive fit statistics are commented out (24.10.2019)
+p03_03_microstates_backfitting(s);
 
 % p04_functional_connectivity(s)
 
-% p05_write_features_to_csv(s)
+p05_write_features_to_csv(s); %in progres..
+p06_processing_summary(s);

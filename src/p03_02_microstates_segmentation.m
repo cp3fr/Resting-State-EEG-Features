@@ -61,6 +61,7 @@ if s.todo.microstates_segmentation==1
 
   %% SEGMENTATION
 
+  %using a modified function 'pop_micro_segment_nofitstats' where some memory-intensive fit statistics are commented out (24.10.2019)
   pl_microstates_segmentation(s);
 
 

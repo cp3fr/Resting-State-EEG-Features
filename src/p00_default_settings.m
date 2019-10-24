@@ -143,10 +143,11 @@ function settings = p00_default_settings()
   settings.microstate.gfppeaks.avgref = 1;
   settings.microstate.gfppeaks.normalise = 1;
   settings.microstate.gfppeaks.MinPeakDist = 10;
-  settings.microstate.gfppeaks.Npeaks = 500;
+  settings.microstate.gfppeaks.Npeaks = 1000;
   settings.microstate.gfppeaks.GFPthresh = 1
 
   %microstate segmentation settings (across subjects)
+  settings.microstate.segmentation.qualityratings = {'g','o'}; %only include subjects with this quality rating (e.g. all qualities: {'g','o','b'})
   settings.microstate.segmentation.algorithm = 'modkmeans';
   settings.microstate.segmentation.sorting = 'Global explained variance';
   settings.microstate.segmentation.normalise = 0;
