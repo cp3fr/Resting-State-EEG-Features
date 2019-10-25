@@ -10,7 +10,8 @@ for i = 1:length(folder)
 
   disp(sprintf('..removing file %d/%d',i,length(folder)))
 
-  fn = 'microstates_eyesclosed.mat';
+  % fn = 'microstates_eyesclosed.mat';
+  fn = 'features_specdata.mat';
 
   fp = [folder(i).folder,filesep,folder(i).name,filesep];
 
