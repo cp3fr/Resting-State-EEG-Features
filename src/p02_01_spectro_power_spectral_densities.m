@@ -1,7 +1,7 @@
 function p02_01_spectro_power_spectral_densities(s)
 
   %if this step is required
-  if s.todo.power_spectral_densities
+  if s.todo.spectro_power_spectral_densities
 
     %find all input folders
     %here: eegdata.mat in results/process/SUBJFOLDER/

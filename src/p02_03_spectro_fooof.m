@@ -1,7 +1,7 @@
 function p02_03_spectro_fooof(s)
 
 %if this step is required
-if s.todo.fooof
+if s.todo.spectro_fooof
 
   try
     %add python and fooof 
