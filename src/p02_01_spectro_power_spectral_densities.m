@@ -1,4 +1,4 @@
-function p02_01_power_spectral_densities(s)
+function p02_01_spectro_power_spectral_densities(s)
 
   %if this step is required
   if s.todo.power_spectral_densities

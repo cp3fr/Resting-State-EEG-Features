@@ -1,4 +1,4 @@
-function p02_03_fooof(s)
+function p02_03_spectro_fooof(s)
 
 %if this step is required
 if s.todo.fooof

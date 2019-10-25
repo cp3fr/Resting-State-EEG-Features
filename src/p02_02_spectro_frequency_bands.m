@@ -1,4 +1,4 @@
-function p02_02_frequency_bands(s)
+function p02_02_spectro_frequency_bands(s)
 
   %if this step is required
   if s.todo.frequency_bands
