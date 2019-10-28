@@ -19,6 +19,7 @@ if s.todo.spectro_fooof
 
   %find all input folders
   %here: specdata.mat in results/process/SUBJFOLDER/
+  disp('..listing subject folders')
   folders = dir(s.path.process); 
   folders = folders(contains({folders.name},'NDAR'));
 

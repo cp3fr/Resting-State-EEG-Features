@@ -90,6 +90,9 @@ function tbl = features_to_table_fooof(eyes, level, inputdata, s)
 
   %===========================================================================
   elseif strcmpi(level,'channel')
+    
+    chanlabels = inputdata.fooof.chans.channames;
+    chans = 1:length(chanlabels);
 
     for dn = {'aperiodic','peak'}
       for param = 1:2

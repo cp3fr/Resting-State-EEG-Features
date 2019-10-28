@@ -1,109 +1,95 @@
-HBN Resting EEG Features
+# HBN Resting EEG Features
 
-This repository contains resting-state electroencephalography (EEG) features, and code to extract those features from data from the Child Mind Institute Healthy Brain Network dataset (http://fcon_1000.projects.nitrc.org/indi/cmi_healthy_brain_network/).
-
-
-INPUT DATA:
-
-Input data is continuous EEG, previously preprocessed with the Automagic toolbox (version 2.3.8., https://github.com/methlabUZH/automagic), including standard preprocessing pipeline with no EOG regression
+This dataset contains resting-state electroencephalography (EEG) features based on the 
+Child Mind Institute Healthy Brain Network dataset (http://fcon_1000.projects.nitrc.org/indi/cmi_healthy_brain_network/).
 
 
-OUTPUT DATA:
+## EEG Preprocessing
 
-Features are available for 1479 subjects.
-
-Features are stored in HBN_RestingEEG_Features/results/csv/
-in files named:
-* "RestingEEG_Spectro_LEVEL.csv" (power spectral densities)
-* "RestingEEG_Feature_LEVEL.csv" (features based on power spectral densities)
-
-where LEVEL refers to 
-* channel (one feature for each of 105 EEG channels)
-* cluster (one feature for each of 6 predefined channel clusters)
-* average (one feature for the average signal across all EEG channels)
+EEG was preprocessed with the Automagic toolbox (version 2.3.8., https://github.com/methlabUZH/automagic), 
+including standard preprocessing pipeline with no EOG regression
 
 
-FEATURE NAMES:
+## Dataset
 
-Subject identifier (anonymized):
-  id                              
+### Filenames
 
-EEG data quality rating (B=bad O=ok G=good) from Automagic:        
-  quality_rating       
+README.md
+RestingEEG_Microstates.csv
+RestingEEG_PSD_Average.csv
+RestingEEG_PSD_Channel.csv
+RestingEEG_PSD_Cluster.csv
+RestingEEG_Preprocessing.csv
+RestingEEG_Spectro_Channel.csv
+RestingEEG_Spectro_Cluster.csv
+RestingEEG_Spectro_Ratios.csv
+RestingEEG_Spectro_Average.csv
 
-Power spectral densities:
-  eyesclosed_specdata_FREQ_LEVEL
-  eyesopen_specdata_FREQ_LEVEL
-  (Note: FREQ refers to frequency-bins from 1-90 Hz, in steps of 0.5 Hz,
-         and excluding 58-62 Hz, e.g. '01dot50hz'=1.5Hz, '70dot00hz'=70Hz)
- 
-Power for fixed frequency bands:
-  eyesclosed_fband_delta_absmean_LEVEL 
-  eyesclosed_fband_delta_relmean_LEVEL         
-  eyesclosed_fband_theta_absmean_LEVEL         
-  eyesclosed_fband_theta_relmean_LEVEL         
-  eyesclosed_fband_alpha_absmean_LEVEL         
-  eyesclosed_fband_alpha_relmean_LEVEL         
-  eyesclosed_fband_beta_absmean_LEVEL          
-  eyesclosed_fband_beta_relmean_LEVEL          
-  eyesclosed_fband_gamma_absmean_LEVEL         
-  eyesclosed_fband_gamma_relmean_LEVEL         
-  eyesopen_fband_delta_absmean_LEVEL           
-  eyesopen_fband_delta_relmean_LEVEL           
-  eyesopen_fband_theta_absmean_LEVEL           
-  eyesopen_fband_theta_relmean_LEVEL           
-  eyesopen_fband_alpha_absmean_LEVEL           
-  eyesopen_fband_alpha_relmean_LEVEL           
-  eyesopen_fband_beta_absmean_LEVEL            
-  eyesopen_fband_beta_relmean_LEVEL            
-  eyesopen_fband_gamma_absmean_LEVEL           
-  eyesopen_fband_gamma_relmean_LEVEL   
 
-Individual alpha peak:        
-  eyesclosed_alphapeak_max_freq                  
-  eyesclosed_alphapeak_max_amplitude             
-  eyesclosed_alphapeak_derivative_freq           
-  eyesclosed_alphapeak_derivative_amplitude      
-  eyesclosed_alphapeak_gravity_freq              
-  eyesclosed_alphapeak_gravity_amplitude         
-  eyesopen_alphapeak_max_freq                    
-  eyesopen_alphapeak_max_amplitude               
-  eyesopen_alphapeak_derivative_freq             
-  eyesopen_alphapeak_derivative_amplitude        
-  eyesopen_alphapeak_gravity_freq                
-  eyesopen_alphapeak_gravity_amplitude           
+## SAMPLES
 
-Individual frequency band (limits relative to individual alpha peak frequency) power
-  eyesclosed_indfband_theta_absmean_LEVEL      
-  eyesclosed_indfband_theta_relmean_LEVEL      
-  eyesclosed_indfband_lower1alpha_absmean_LEVEL
-  eyesclosed_indfband_lower1alpha_relmean_LEVEL
-  eyesclosed_indfband_lower2alpha_absmean_LEVEL
-  eyesclosed_indfband_lower2alpha_relmean_LEVEL
-  eyesclosed_indfband_upperalpha_absmean_LEVEL 
-  eyesclosed_indfband_upperalpha_relmean_LEVEL 
-  eyesclosed_indfband_beta_absmean_LEVEL       
-  eyesclosed_indfband_beta_relmean_LEVEL       
-  eyesopen_indfband_theta_absmean_LEVEL        
-  eyesopen_indfband_theta_relmean_LEVEL        
-  eyesopen_indfband_lower1alpha_absmean_LEVEL  
-  eyesopen_indfband_lower1alpha_relmean_LEVEL  
-  eyesopen_indfband_lower2alpha_absmean_LEVEL  
-  eyesopen_indfband_lower2alpha_relmean_LEVEL  
-  eyesopen_indfband_upperalpha_absmean_LEVEL   
-  eyesopen_indfband_upperalpha_relmean_LEVEL   
-  eyesopen_indfband_beta_absmean_LEVEL         
-  eyesopen_indfband_beta_relmean_LEVEL         
+The dataset consists data from 1485 subjects in two experimental condtions:
+- eyesclosed: several blocks of 40sec eyes-closed resting-state EEG
+- eyesopen: several blocks of 20sec eyes-open resting-state EEG
 
-FOOOF fit parameters:
-  eyesclosed_fooof_aperiodic_intercept_LEVEL   
-  eyesclosed_fooof_aperiodic_slope_LEVEL       
-  eyesclosed_fooof_peak_freq_LEVEL             
-  eyesclosed_fooof_peak_amplitude_LEVEL        
-  eyesopen_fooof_aperiodic_intercept_LEVEL     
-  eyesopen_fooof_aperiodic_slope_LEVEL         
-  eyesopen_fooof_peak_freq_LEVEL               
-  eyesopen_fooof_peak_amplitude_LEVEL          
+block order was interleaved, 
+first and last second of each block was removed during preprocessing
+
+EEG data was preprocessed with the Automagic toolbox (version 2.3.8., https://github.com/methlabUZH/automagic), 
+including standard preprocessing pipeline with no EOG regression 
+
+Data from different subjects are stored in different rows, subjects can be identified via the unique identifier 'id'.
+
+
+## FEATURES
+
+There are four kinds of features:
+* Preprocessing: Data quality information and number of data samples related to preprocessing
+* Power Spectral Densities (PSD): Frequency-wise spectral power from 1-90 Hz
+* Spectro: Spectrogram-based features, such as frequency band, individual alpha power, and FOOOF parameters
+* Microstates: Microstate segmentation based features
+
+There are three feature levels: 
+* Channel: one feature for each of 105 EEG channels
+* Cluster: one feature for each of 6 channel clusters
+* Average: one feature for the average all EEG channels
+
+
+## FEATURE NAMES
+
+PREPROCESSING:
+
+  id: Subject identifier (anonymized):
+  quality_rating: EEG data quality rating (B=bad O=ok G=good) from Automagic:            
+
+PSD:
+
+  CONDITION_psd_FREQUENCY_LEVEL
+    where...
+    - CONDITION refers to experimental conditions: eyesclosed, eyesopen
+    - FREQUENCY refers to frequency bins: 01dot00Hz to 90dot00Hz in steps of 00dot50Hz
+    - LEVEL refers to the different feature levels (channels, cluster, average)
+
+SPECTRO:       
+  fband: fixed frequency bands
+  alphapeak: individual alpha peak
+  indfband: individual frequency bands relative to individual alpha peak
+  fooof: 1/f aperiodic signal fit and oscillatory peak parameters
+  ratios: individual frequency band-power x electrode-cluster ratios
+    where...
+    - relmean is band power relative to the mean overall power
+    - absmean is absolute band power
+
+MICROSTATES                                  
+  eyesclosed_microstates_gevtotal            
+  eyesclosed_microstates_gfp_prototypeNB      
+  eyesclosed_microstates_occurence_prototypeNB
+  eyesclosed_microstates_duration_prototypeNB 
+  eyesclosed_microstates_coverage_prototypeNB 
+  eyesclosed_microstates_gev_prototypeNB      
+  eyesclosed_microstates_mspatcorr_prototypeNB
+    where NB refers to Microstate prototype number: 1, 2, 3, 4
+
 
 christian.pfeiffer@uzh.ch
-02.10.2019
+28.10.2019

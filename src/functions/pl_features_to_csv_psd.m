@@ -1,14 +1,10 @@
 function pl_features_to_csv_psd(level, folders, s)
 
-  %output files path and names
-  fp_table = s.path.tables;
-  fn_table = sprintf('features_psd_%s.mat',level);
-  fp_csv = s.path.csv;
-  fn_csv = sprintf('features_psd_%s.csv',level);
+  %output path for intermediate csv files
   fp_folder = sprintf('%sfeatures_psd_%s/',s.path.csv,level);
 
   %only run this step if outputfiles do not exist or if override was requested
-  if   ~( (exist([fp_table,fn_table])==2) && (exist([fp_csv,fn_csv])==2) ) ...
+  if   ~isdir(fp_folder) ...
       || s.todo.override
 
     %make the intermediate folder
@@ -19,7 +15,6 @@ function pl_features_to_csv_psd(level, folders, s)
       mkdir(fp_folder);
     end
 
-
     %% COLLECT FEATURES AND SAVE TO INTERMEDIATE CSV
 
     row = 1;
@@ -28,7 +23,7 @@ function pl_features_to_csv_psd(level, folders, s)
     %loop over subjects
     for i = 1:length(folders)
 
-      disp(sprintf('..PSD %s features, step 1/3 save intermediate file (row_*.csv), subject %d/%d',level,i,length(folders)))
+      disp(sprintf('..PSD %s features, save intermediate file (row_*.csv), subject %d/%d',level,i,length(folders)))
 
       %subject data folder
       fp = [folders(i).folder,filesep,folders(i).name,filesep];
@@ -103,37 +98,25 @@ function pl_features_to_csv_psd(level, folders, s)
 
     end 
 
+    %% NOW USE PYTHON TO CONCATENATE INTERMEDIATE CSV FILES
+    disp('NOW USE PYTHON TO CONCATENATE INTERMEDIATE CSV FILES')
 
+  end
 
-    %% MAKE FEATURE TABLE FROM INTERMEDIATE CSV FILES
+  %% MAKE FINAL CSV FILE
 
-    fp = fp_folder;
-    tmp = dir(fp_folder);
-    filenames = {tmp.name};
-    filenames = filenames(contains(filenames,'row'));
-    n=length(filenames);
+  fp_csv = s.path.csv;
+  fn_csv  = sprintf('features_psd_%s.csv',level);
+  fp_table = s.path.tables;
+  fn_table  = sprintf('features_psd_%s.mat',level);
 
-    features = table;
-    for row = 1:n
-      disp(sprintf('..PSD %s features, step 2/3 make feature table, file %d/%d',level,row,n))
-      if row == 1
-        readvariablenames = true;
-      else
-        readvariablenames = false;
-      end
-      fn=sprintf('row_%d.csv',row);
-      tbl = readtable([fp,fn],'readvariablenames',readvariablenames);
-      if row ~=1
-        tbl.Properties.VariableNames = features.Properties.VariableNames;
-      end
-      features = cat(1,features,tbl);
-      clear tbl;
-    end
+  %only perform this step if the csv folder exists, table does not exist or override is requested
+  if (exist([fp_csv,fn_csv])==2) ...
+    && (~(exist([fp_table,fn_table])==2) || s.todo.override)
 
-
-    %% SAVE FEATURE TABLE
+   %% SAVE FEATURE TABLE
     
-    disp(sprintf('..PSD %s features, step 3/3 save feature table, file %d/%d',level))
+    features = readtable([fp_csv, fn_csv]);
 
     %..save table
     if ~isdir(fp_table)
@@ -151,6 +134,5 @@ function pl_features_to_csv_psd(level, folders, s)
     writetable(features, [fp_csv,fn_csv], 'Delimiter', ',');
 
   end
-
 
 end

@@ -9,8 +9,9 @@ clear all; close all; clc;
 restoredefaultpath;
 
 %=============================================================
-%(Note 24.10.2019): in p03_02_microstates_segmentation(s) using a modified function 'pop_micro_segment_nofitstats' where some memory-intensive fit statistics are commented out 
-
+%(Note 24.10.2019): in p03_02_microstates_segmentation(s) 
+%using a modified function 'pop_micro_segment_nofitstats' 
+%where some memory-intensive fit statistics are commented out 
 %=============================================================
 %processing settings
 
@@ -22,12 +23,12 @@ s.todo.override                         = false;
 s.todo.load_segment_data                = false;
 s.todo.spectro_power_spectral_densities = false;
 s.todo.spectro_frequency_bands          = false;
-s.todo.spectro_fooof                    = false; %run fooof for all files on local machine
+s.todo.spectro_fooof                    = false;
 s.todo.microstates_gfppeaks             = false;
 s.todo.microstates_segmentation         = false; 
 s.todo.microstates_backfitting          = false;
-% s.todo.functional_connectivity  = false;
-s.todo.write_features_to_csv            = true; %temporarily uncommented spectro until fooof is done
+% s.todo.functional_connectivity          = false;
+s.todo.features_to_csv                  = false;
 s.todo.processing_summary               = false;
 
 

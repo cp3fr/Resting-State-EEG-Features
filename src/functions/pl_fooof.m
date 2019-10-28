@@ -61,6 +61,9 @@ function pl_fooof(inputfolder,outputfolder,settings)
 
     end
 
+  else
+    
+    disp(['..skipping ',fp])
 
   end
 
