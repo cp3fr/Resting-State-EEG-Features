@@ -3,30 +3,21 @@
 This dataset contains resting-state electroencephalography (EEG) features based on the 
 Child Mind Institute Healthy Brain Network dataset (http://fcon_1000.projects.nitrc.org/indi/cmi_healthy_brain_network/).
 
+## Filenames
 
-## EEG Preprocessing
-
-EEG was preprocessed with the Automagic toolbox (version 2.3.8., https://github.com/methlabUZH/automagic), 
-including standard preprocessing pipeline with no EOG regression
-
-
-## Dataset
-
-### Filenames
-
-README.md
-RestingEEG_Microstates.csv
-RestingEEG_PSD_Average.csv
-RestingEEG_PSD_Channel.csv
-RestingEEG_PSD_Cluster.csv
-RestingEEG_Preprocessing.csv
-RestingEEG_Spectro_Channel.csv
-RestingEEG_Spectro_Cluster.csv
-RestingEEG_Spectro_Ratios.csv
-RestingEEG_Spectro_Average.csv
+* README.md
+* RestingEEG_Microstates.csv
+* RestingEEG_PSD_Average.csv
+* RestingEEG_PSD_Channel.csv
+* RestingEEG_PSD_Cluster.csv
+* RestingEEG_Preprocessing.csv
+* RestingEEG_Spectro_Channel.csv
+* RestingEEG_Spectro_Cluster.csv
+* RestingEEG_Spectro_Ratios.csv
+* RestingEEG_Spectro_Average.csv
 
 
-## SAMPLES
+## Samples
 
 The dataset consists data from 1485 subjects in two experimental condtions:
 - eyesclosed: several blocks of 40sec eyes-closed resting-state EEG
@@ -41,7 +32,7 @@ including standard preprocessing pipeline with no EOG regression
 Data from different subjects are stored in different rows, subjects can be identified via the unique identifier 'id'.
 
 
-## FEATURES
+## Features
 
 There are four kinds of features:
 * Preprocessing: Data quality information and number of data samples related to preprocessing
@@ -55,7 +46,7 @@ There are three feature levels:
 * Average: one feature for the average all EEG channels
 
 
-## FEATURE NAMES
+## Feature Names
 
 PREPROCESSING:
 
